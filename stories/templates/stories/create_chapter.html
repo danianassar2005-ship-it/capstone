@@ -1,0 +1,53 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+Write Chapter | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+
+    <h1>Write the First Chapter</h1>
+
+    <p>
+        Story: <strong>{{ story.title }}</strong>
+    </p>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <label for="title">
+            Chapter title
+        </label>
+
+        <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Chapter 1"
+            required
+        >
+
+        <label for="content">
+            Chapter
+        </label>
+
+        <textarea
+            id="content"
+            name="content"
+            rows="18"
+            placeholder="Start writing..."
+            required
+        ></textarea>
+
+        <button type="submit">
+            Publish Chapter
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

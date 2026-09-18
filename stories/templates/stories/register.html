@@ -1,0 +1,58 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+Register | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+
+    <h1>Create an Account</h1>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <label>Username</label>
+
+        <input
+            type="text"
+            name="username"
+            required
+        >
+
+        <label>Password</label>
+
+        <input
+            type="password"
+            name="password"
+            required
+        >
+
+        <label>Confirm Password</label>
+
+        <input
+            type="password"
+            name="confirmation"
+            required
+        >
+
+        <button type="submit">
+            Register
+        </button>
+
+    </form>
+
+    <p>
+        Already have an account?
+        <a href="/login/">Login</a>
+    </p>
+
+</div>
+
+{% endblock %}

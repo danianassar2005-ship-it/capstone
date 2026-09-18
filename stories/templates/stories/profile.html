@@ -1,0 +1,59 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+Profile | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="library-page">
+
+    <h1>Profile</h1>
+
+    <p>
+        Username: <strong>{{ user.username }}</strong>
+    </p>
+
+    <hr>
+
+    <h2>My Stories</h2>
+
+    {% if stories %}
+
+        {% for story in stories %}
+
+            <div class="library-story">
+
+                <h2>{{ story.title }}</h2>
+
+                <p>
+                    {{ story.description }}
+                </p>
+
+                <p>
+                    {{ story.chapters.count }} chapters
+                </p>
+
+                <a href="/stories/{{ story.id }}/">
+                    Read Story
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>
+            You haven't created any stories yet.
+        </p>
+
+        <a href="/stories/create/">
+            Create a Story
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

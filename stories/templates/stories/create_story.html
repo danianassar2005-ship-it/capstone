@@ -1,0 +1,76 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+Create Story | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+
+    <h1>Create a Story</h1>
+
+    <p>
+        Start a story and let others continue it.
+    </p>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <label for="title">
+            Story title
+        </label>
+
+        <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Enter your story title"
+            required
+        >
+
+
+        <label for="description">
+            Description
+        </label>
+
+        <textarea
+            id="description"
+            name="description"
+            rows="5"
+            placeholder="What is your story about?"
+            required
+        ></textarea>
+
+
+        <label for="genre">
+            Genre
+        </label>
+
+        <select id="genre" name="genre">
+
+            <option value="">
+                Select a genre
+            </option>
+
+            {% for genre in genres %}
+
+                <option value="{{ genre.id }}">
+                    {{ genre.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button type="submit">
+            Create Story
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}StoryWeave{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'stories/style.css' %}">
+    <script src="{% static 'stories/script.js' %}"></script>
+</head>
+
+<body>
+
+    
+    <nav class="navbar">
+
+        <a href="/" class="logo">
+            StoryWeave 
+        </a>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/stories/">Explore</a>
+            
+            {% if user.is_authenticated %}
+                <a href="/stories/create/">Create Story</a>
+                <a href="/stories/library/">My Library</a>
+                <a href="/stories/profile/">Profile</a>
+
+                <form action="/logout/" method="post" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="/login/">Login</a>
+                <a href="/register/" class="nav-button">Join Us</a>
+            {% endif %}
+        </div>
+
+    </nav>
+
+
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+
+    
+    <footer>
+        <p>© 2026 StoryWeave — Stories are better together.</p>
+    </footer>
+
+</body>
+</html>

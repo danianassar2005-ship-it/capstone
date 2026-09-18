@@ -1,0 +1,175 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+{{ chapter.title }} | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="chapter-page">
+
+    <p>
+        <a href="/stories/{{ story.id }}/">
+            ← Back to Story
+        </a>
+    </p>
+
+    <h1>{{ chapter.title }}</h1>
+
+    <p class="chapter-meta">
+        Written by {{ chapter.author.username }}
+    </p>
+
+    <div class="story-path">
+
+        <strong>Story Path:</strong>
+
+        {% for item in path %}
+
+            <span>
+                {{ item.title }}
+            </span>
+
+            {% if not forloop.last %}
+                →
+            {% endif %}
+
+        {% endfor %}
+
+    </div>
+
+    <div class="chapter-text">
+        {{ chapter.content|linebreaks }}
+    </div>
+
+    <hr>
+
+    <h2>What happens next?</h2>
+
+    {% if continuations %}
+
+        {% for continuation in continuations %}
+
+            <div class="continuation-box">
+
+                <h3>
+                    {{ continuation.title }}
+                </h3>
+
+                <p>
+                    By {{ continuation.author.username }}
+                </p>
+
+                <a
+                    href="/stories/{{ story.id }}/chapters/{{ continuation.id }}/"
+                >
+                    Read continuation
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>
+            No one has continued this chapter yet.
+        </p>
+
+    {% endif %}
+
+    {% if story.status == "ongoing" %}
+
+        {% if user.is_authenticated %}
+
+            <a
+                href="/stories/{{ story.id }}/chapters/{{ chapter.id }}/continue/"
+                class="simple-button"
+            >
+                Continue this story
+            </a>
+
+        {% else %}
+
+            <p>
+                Login to continue this story.
+            </p>
+
+        {% endif %}
+
+    {% else %}
+
+        <p>
+            This story has ended. No more continuations can be added.
+        </p>
+
+    {% endif %}
+
+    <hr>
+
+    <h2>Comments</h2>
+
+    {% for comment in comments %}
+
+        <div class="continuation-box">
+
+            <strong>
+                {{ comment.user.username }}
+            </strong>
+
+            <p>
+                {{ comment.content }}
+            </p>
+
+            <small>
+                {{ comment.created_at }}
+            </small>
+
+        </div>
+
+    {% empty %}
+
+        <p>
+            No comments yet.
+        </p>
+
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+
+        <form
+            method="post"
+            action="/stories/{{ story.id }}/chapters/{{ chapter.id }}/comment/"
+        >
+
+            {% csrf_token %}
+
+            <label for="content">
+                Write a comment
+            </label>
+
+            <textarea
+                id="content"
+                name="content"
+                rows="4"
+                placeholder="Write your comment..."
+                required
+            ></textarea>
+
+            <button type="submit">
+                Add Comment
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <p>
+            Login to write a comment.
+        </p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

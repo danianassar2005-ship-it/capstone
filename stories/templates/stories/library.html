@@ -1,0 +1,51 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+My Library | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="library-page">
+
+    <h1>My Library</h1>
+
+    <p>Stories you saved.</p>
+
+    {% if saved_stories %}
+
+        {% for saved in saved_stories %}
+
+            <div class="library-story">
+
+                <h2>{{ saved.story.title }}</h2>
+
+                <p>
+                    {{ saved.story.description }}
+                </p>
+
+                <p>
+                    By {{ saved.story.author.username }}
+                </p>
+
+                <a href="/stories/{{ saved.story.id }}/">
+                    Read Story
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>You haven't saved any stories yet.</p>
+
+        <a href="/stories/">
+            Explore Stories
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

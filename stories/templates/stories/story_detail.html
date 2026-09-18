@@ -1,0 +1,140 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+{{ story.title }} | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="story-page">
+
+    <h1>{{ story.title }}</h1>
+
+    <p class="story-meta">
+        By {{ story.author.username }} · {{ story.genre }}
+    </p>
+
+    <p class="story-description">
+        {{ story.description }}
+    </p>
+
+    <p class="story-meta">
+        Status: <strong>{{ story.get_status_display }}</strong>
+    </p>
+
+    {% if user.is_authenticated and user == story.author %}
+
+        <form
+            method="post"
+            action="/stories/{{ story.id }}/status/"
+            class="status-form"
+        >
+
+            {% csrf_token %}
+
+            {% if story.status == "ongoing" %}
+
+                <button
+                    type="submit"
+                    class="simple-button end-story-button"
+                >
+                    End Story
+                </button>
+
+            {% else %}
+
+                <button
+                    type="submit"
+                    class="simple-button"
+                >
+                    Reopen Story
+                </button>
+
+            {% endif %}
+
+        </form>
+
+    {% endif %}
+
+    {% if user.is_authenticated %}
+
+        <a
+            href="/stories/{{ story.id }}/save/"
+            class="simple-button"
+        >
+            Save Story
+        </a>
+
+    {% endif %}
+
+    <hr>
+
+    <h2>Story</h2>
+
+    {% for chapter in chapters %}
+
+        <div class="chapter">
+
+            <h3>
+                {{ chapter.title }}
+            </h3>
+
+            <p class="chapter-meta">
+                Written by {{ chapter.author.username }}
+            </p>
+
+            <p class="chapter-content">
+                {{ chapter.content|linebreaks }}
+            </p>
+
+            <a
+                href="/stories/{{ story.id }}/chapters/{{ chapter.id }}/"
+                class="simple-button"
+            >
+                Read Chapter
+            </a>
+
+            {% if chapter.continuations.exists %}
+
+                <h4 style="margin-top: 25px;">
+                    What happens next?
+                </h4>
+
+                {% for continuation in chapter.continuations.all %}
+
+                    <a
+                        href="/stories/{{ story.id }}/chapters/{{ continuation.id }}/"
+                        class="continuation"
+                    >
+                        {{ continuation.title }}
+                        — {{ continuation.author.username }}
+                    </a>
+
+                {% endfor %}
+
+            {% endif %}
+
+        </div>
+
+    {% empty %}
+
+        <p>
+            This story doesn't have any chapters yet.
+        </p>
+
+        {% if user.is_authenticated and user == story.author and story.status == "ongoing" %}
+
+            <a
+                href="/stories/{{ story.id }}/create-chapter/"
+                class="simple-button"
+            >
+                Write First Chapter
+            </a>
+
+        {% endif %}
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

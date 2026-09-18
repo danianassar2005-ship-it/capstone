@@ -1,0 +1,115 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+Explore Stories | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<section class="explore-page">
+
+    <div class="page-header">
+
+        <h1>Explore Stories</h1>
+
+        <p>
+            Discover stories created and shaped by the community.
+        </p>
+
+    </div>
+
+
+    <form method="get" class="search-form">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search stories..."
+            value="{{ search|default:'' }}"
+        >
+
+        <select name="genre">
+
+            <option value="">
+                All Genres
+            </option>
+
+            {% for genre in genres %}
+
+                <option
+                    value="{{ genre.id }}"
+                    {% if selected_genre == genre.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ genre.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+
+    <div class="stories-grid">
+
+        {% for story in stories %}
+
+            <article class="story-card">
+
+                <div class="story-card-content">
+
+                    <span class="genre">
+                        {{ story.genre }}
+                    </span>
+
+                    <h2>
+                        {{ story.title }}
+                    </h2>
+
+                    <p class="story-description">
+                        {{ story.description|truncatewords:25 }}
+                    </p>
+
+                    <div class="story-info">
+                         <span>Author: {{ story.author.username }}</span>
+                         <span>{{ story.chapters.count }} chapters</span>
+                    </div>
+
+                    <a
+                        href="/stories/{{ story.id }}/"
+                        class="primary-button"
+                    >
+                        Read Story
+                    </a>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <div class="empty-state">
+
+                <h2>
+                    No stories found.
+                </h2>
+
+                <p>
+                    Try another search or genre.
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}

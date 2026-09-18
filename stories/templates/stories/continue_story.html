@@ -1,0 +1,58 @@
+{% extends "stories/base.html" %}
+
+{% block title %}
+Continue Story | StoryWeave
+{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+
+    <h1>Continue the Story</h1>
+
+    <p>
+        You are continuing:
+        <strong>{{ story.title }}</strong>
+    </p>
+
+    <p>
+        After:
+        <strong>{{ parent_chapter.title }}</strong>
+    </p>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <label for="title">Chapter title</label>
+
+        <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Chapter title"
+            required
+        >
+
+
+        <label for="content">Your chapter</label>
+
+        <textarea
+            id="content"
+            name="content"
+            rows="15"
+            placeholder="Continue the story..."
+            required
+        ></textarea>
+
+
+        <button type="submit">
+            Publish Chapter
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
