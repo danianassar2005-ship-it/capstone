@@ -2,377 +2,255 @@
 
 ## CS50W Final Project
 
-StoryWeave is a web application that I built using Django for my CS50W final project.
-
-The main idea of the website is collaborative storytelling. A user can create a story and write the first chapter. Other users can then continue the story. A chapter can have more than one continuation, so the story can go in different directions.
-
-For example:
-
-Chapter 1
-- Chapter 2A
-- Chapter 2B
-- Chapter 2C
-
-This means that users can choose different branches instead of following only one story path.
-
----
-
-## Why I Made StoryWeave
-
-I wanted to make something different from a normal blogging or social media website. I liked the idea of collaborative writing and allowing more than one person to contribute to the same story.
-
-I also wanted to create a website where the same story can have different possible paths depending on how users continue it.
-
----
+StoryWeave is a Django web application for collaborative storytelling.
+Users can create stories, write starting chapters, and allow other
+logged-in users to add continuations. A chapter can have multiple
+continuations, so a story can develop into different branches rather
+than one fixed sequence. Readers can explore stories, follow the path to
+a chapter, save stories, and comment on chapters.
 
 ## Distinctiveness and Complexity
 
-StoryWeave is different from the previous CS50W projects because it is a collaborative storytelling website. The main idea is not just to create and read stories, but to allow different users to continue the same story.
+StoryWeave's central purpose is collaborative fiction built around
+branching narratives. Its main content is not a collection of
+independent posts: chapters are connected, and readers can choose among
+continuations written by different users. Each continuation can receive
+further continuations, allowing a story to develop into several possible
+paths. This narrative structure determines how the data is stored,
+retrieved, and displayed.
 
-The main feature of the project is the branching story system. A chapter can have multiple continuations, and each continuation can have its own continuations. This creates different paths inside the same story.
+The branching system is implemented through the `parent_chapter` field
+in the `Chapter` model. It is a nullable foreign key that refers to
+another record of the same model. A chapter without a parent is a
+starting chapter; a chapter with a parent continues that chapter. This
+self-referencing relationship allows the application to represent both a
+linear sequence and multiple branches from the same chapter. It also
+lets the application retrieve the continuations of a specific chapter
+without treating every chapter as an unrelated entry.
 
-For example:
+The chapter detail view uses the parent relationships to construct the
+Story Path. It starts from the chapter being viewed, follows
+`parent_chapter` repeatedly until it reaches a starting chapter, and
+inserts each chapter at the beginning of a list. The template displays
+the resulting sequence from the beginning to the current chapter. This
+is important because a reader may enter a story at a later chapter and
+needs to understand which branch led there.
 
-Chapter 1
-- Chapter 2A
-- Chapter 2B
-- Chapter 2C
+The application also manages whether a story is open for contributions.
+Each story has an `ongoing` or `completed` status. The author can end a
+story or reopen it. The views check the status before creating the first
+chapter or adding a continuation, so a completed story cannot receive
+new chapters through those actions. The interface reflects the status by
+showing the relevant controls and messages.
 
-Chapter 2A can then have:
+These features require several related database objects and rules to
+work together. Stories are linked to their authors and optional genres.
+Chapters are linked to stories and authors, and can be linked to parent
+chapters. Comments belong to individual chapters, while saved stories
+connect a user to a story. A unique database constraint on the
+user/story pair prevents the same user from saving a story more than
+once. Authentication and ownership checks distinguish actions available
+to any logged-in contributor from actions reserved for the story's
+author.
 
-- Chapter 3A
-- Chapter 3B
-
-I implemented this using the `parent_chapter` field in the Chapter model. It is a self-referencing foreign key, which connects a chapter to another chapter from the same model.
-
-Another part of the project is the Story Path feature. When a user opens a chapter, the application follows the `parent_chapter` relationships and displays the path from the first chapter to the current chapter. This helps the user understand which branch they are currently reading.
-
-The project also has story status management. A story can be either Ongoing or Completed. The author can end a story, which prevents users from adding new continuations. The author can also reopen the story later.
-
-Other features such as authentication, comments, saved stories, profiles, search, and genre filtering are also included in the project.
-
----
+StoryWeave includes accounts, comments, profiles, and saved stories, but
+those features support its writing workflow. The main interaction is
+creating a narrative and adding or selecting a continuation, not
+publishing a social feed or following other users. Its distinctiveness
+comes from the branching story model and the reading and contribution
+features built around that model. Its complexity comes from implementing
+those relationships, reconstructing a chapter's path, and enforcing
+authentication, ownership, and story-status rules across the relevant
+views.
 
 ## Main Features
 
-### User Accounts
-
-Users can register, log in, and log out.
-
-Django's built-in User model is used for the authentication system.
-
-Some features, such as creating stories, continuing stories, saving stories, and writing comments, require the user to be logged in.
-
----
-
-### Creating Stories
-
-Logged-in users can create a new story.
-
-When creating a story, the user enters:
-
-- Story title
-- Description
-- Genre
-
-The user who creates the story becomes the author of the story.
-
----
-
-### Chapters and Branches
-
-After creating a story, the author can write the first chapter.
-
-Other users can continue a chapter by creating a new chapter. A chapter can have multiple continuations, so users can choose different paths for the story.
-
-For example:
-
-Chapter 1 - The Key
-
-    - Search the House
-    - Ask Her Brother
-    - Ignore the Key
-
-This allows different users to take the story in different directions.
-
----
-
-### Story Path
-
-When reading a chapter, the website shows the path that leads to the current chapter.
-
-For example:
-
-Chapter 1 - The Key
--> Search the House
--> The Storage Room
-
-This helps the user understand which branch they are currently reading.
-
----
-
-### Ending a Story
-
-The author of a story can end the story by clicking the "End Story" button.
-
-A story has two possible statuses:
-
-- Ongoing
-- Completed
-
-When a story is completed, users cannot add new continuations.
-
-The author can also click "Reopen Story" if they want to allow users to continue the story again.
-
----
-
-### Explore Stories
-
-The Explore page shows the stories available on the website.
-
-Users can search for stories by title and filter them by genre.
-
-The genres used in the project include:
-
-- Fantasy
-- Mystery
-- Romance
-- Horror
-- Science Fiction
-- Adventure
-- Drama
-
----
-
-### Save Stories
-
-Logged-in users can save stories that they like.
-
-Saved stories appear in the "My Library" page.
-
-A user cannot save the same story more than once.
-
-This feature allows users to easily come back to saved stories and check for new updates.
-
----
-
-### Comments
-
-Users who are logged in can write comments on chapters.
-
-Each comment shows the username, the comment, and the date and time it was created.
-
----
-
-### Profile
-
-Each logged-in user has a Profile page.
-
-The profile shows the username and the stories created by that user.
-
----
-
-## JavaScript
-
-I also used JavaScript in the project for a confirmation message when the author wants to end a story.
-
-When the author clicks "End Story", JavaScript asks:
-
-"Are you sure you want to end this story?"
-
-If the user clicks Cancel, the form is not submitted.
-
-The JavaScript code is stored in:
-
-`stories/static/stories/script.js`
-
----
+-   **Accounts:** Users can register, log in, and log out using Django's
+    built-in `User` model.
+-   **Story creation:** Logged-in users can create a story with a title,
+    description, and optional genre. The creator becomes its author.
+-   **Chapters and branches:** The author can write the first chapter.
+    Logged-in users can add continuations to chapters while the story is
+    ongoing. A chapter can have more than one continuation.
+-   **Story Path:** The chapter page shows the sequence of parent
+    chapters leading to the current chapter.
+-   **Story status:** The author can end an ongoing story and reopen a
+    completed one. Completed stories do not accept new chapters or
+    continuations.
+-   **Explore:** Users can browse stories, search by title, and filter
+    by genre.
+-   **Saved stories:** Logged-in users can save stories to My Library.
+    Duplicate saves by the same user are prevented.
+-   **Comments:** Logged-in users can comment on chapters. Comments
+    display the username and creation time.
+-   **Profile:** Users can view their username and the stories they
+    created.
+-   **Responsive layout:** CSS media queries adapt the navigation, story
+    grid, forms, and other elements for smaller screens.
 
 ## Database Models
 
-The project uses several Django models.
+The application defines five models in `stories/models.py`:
 
-### Genre
-
-The Genre model stores the different genres available for stories.
-
-It contains a `name` field.
-
-### Story
-
-The Story model stores the main information about each story.
-
-It contains:
-
-- title
-- description
-- author
-- genre
-- status
-- created_at
-
-### Chapter
-
-The Chapter model stores the chapters of each story.
-
-It contains:
-
-- story
-- author
-- parent_chapter
-- title
-- content
-- created_at
-
-The `parent_chapter` field is a self-referencing foreign key. It connects a chapter to the chapter that came before it and is used to create the branching structure.
-
-### SavedStory
-
-The SavedStory model stores the stories that users save to their library.
-
-It connects a user with a story.
-
-A unique constraint prevents the same user from saving the same story more than once.
-
-### Comment
-
-The Comment model stores comments written by users on chapters.
-
-It connects a user with a chapter and stores the comment content and creation time.
-
----
+-   **Genre** stores a unique genre name.
+-   **Story** stores the title, description, author, optional genre,
+    status, and creation time.
+-   **Chapter** stores the story, author, optional parent chapter,
+    title, content, and creation time. Its self-referencing parent field
+    supports branching.
+-   **SavedStory** connects a user and a story and stores when it was
+    saved. A unique constraint prevents duplicate saves.
+-   **Comment** connects a user to a chapter and stores the comment text
+    and creation time.
 
 ## Files
 
-### `manage.py`
+The project is organized as a Django project named `config` and an
+application named `stories`.
 
-This is the main Django command-line file. It is used to run the server, migrations, and tests.
+### Project-level files
 
-### `config/`
+-   **`manage.py`** is Django's command-line utility for running the
+    development server, applying migrations, and running tests.
+-   **`config/__init__.py`** marks the project configuration directory
+    as a Python package.
+-   **`config/settings.py`** contains Django configuration, including
+    installed applications, middleware, templates, database, and
+    static-file settings.
+-   **`config/urls.py`** contains the top-level URL configuration and
+    connects requests to the application.
+-   **`config/asgi.py`** and **`config/wsgi.py`** provide the ASGI and
+    WSGI application entry points.
+-   **`requirements.txt`** lists the Python packages and versions
+    required to run the project.
+-   **`.gitignore`** lists local and generated files that should not be
+    tracked by Git, including the virtual environment, Python bytecode,
+    and operating-system metadata.
+-   **`db.sqlite3`** is the local SQLite database file used by the
+    project.
 
-This folder contains the main project settings.
+### Application files
 
-`settings.py` contains the Django configuration.
+-   **`stories/models.py`** defines the `Genre`, `Story`, `Chapter`,
+    `SavedStory`, and `Comment` models and their database relationships.
+-   **`stories/views.py`** contains the request-handling logic. It
+    renders pages and handles registration, login, logout, story
+    creation, first-chapter creation, continuations, comments, saving
+    stories, searching, profiles, and story-status changes. It also
+    checks login requirements, story ownership, and story status before
+    allowing restricted actions.
+-   **`stories/urls.py`** maps application URL paths to view functions
+    for browsing, creating, reading, continuing, saving, commenting,
+    authentication, and status changes.
+-   **`stories/admin.py`** is the Django admin configuration file, where
+    application models can be registered for administration.
+-   **`stories/apps.py`** contains the Django application configuration.
+-   **`stories/tests.py`** contains automated tests using Django's test
+    framework. They cover page responses and content, login, saving and
+    viewing saved stories, continuing a chapter, adding a comment, title
+    search, and genre filtering.
+-   **`stories/migrations/`** contains Django migration files used to
+    apply model changes to the database.
 
-`urls.py` connects the main URLs to the stories application.
+### HTML templates
 
-`asgi.py` and `wsgi.py` are used for running the Django application.
+The templates are stored in `stories/templates/stories/`. Most extend
+`base.html` to reuse the common page structure.
 
-### `stories/models.py`
+-   **`base.html`** defines the shared HTML layout, navigation bar,
+    footer, and references to the static CSS and JavaScript files. It
+    displays different navigation links depending on whether the user is
+    logged in.
+-   **`home.html`** displays the project introduction and links to
+    Explore and story creation.
+-   **`explore.html`** displays available stories and provides the
+    title-search and genre-filter form.
+-   **`create_story.html`** contains the form for creating a story,
+    including its title, description, and optional genre.
+-   **`story_detail.html`** displays story information and starting
+    chapters. It also shows the author's status controls, the save
+    option, and links to chapters and continuations.
+-   **`create_chapter.html`** contains the form for the story author to
+    write the first chapter.
+-   **`chapter_detail.html`** displays chapter content, the Story Path,
+    continuations, and comments. It also provides forms for continuing
+    and commenting when applicable.
+-   **`continue_story.html`** contains the form for adding a
+    continuation to a selected parent chapter.
+-   **`library.html`** displays the signed-in user's saved stories.
+-   **`profile.html`** displays the signed-in user's username and
+    created stories.
+-   **`login.html`** contains the login form and displays authentication
+    errors.
+-   **`register.html`** contains the registration form and displays
+    validation errors.
 
-This file contains all the database models for StoryWeave.
+### Static files
 
-### `stories/views.py`
-
-This file contains the main logic of the application.
-
-It handles things such as:
-
-- Login and registration
-- Creating stories
-- Creating chapters
-- Continuing stories
-- Comments
-- Saving stories
-- Searching
-- Story status
-- Profiles
-
-### `stories/urls.py`
-
-This file contains the URLs for the different pages and actions in the application.
-
-### `stories/admin.py`
-
-This file registers the models with the Django admin interface.
-
-### `stories/tests.py`
-
-This file contains automated tests for different features of the website.
-
-### `stories/templates/stories/`
-
-This folder contains the HTML pages.
-
-Some of the main pages are:
-
-- `home.html`
-- `explore.html`
-- `story_detail.html`
-- `chapter_detail.html`
-- `continue_story.html`
-- `create_story.html`
-- `create_chapter.html`
-- `library.html`
-- `profile.html`
-- `login.html`
-- `register.html`
-
-### `stories/static/stories/style.css`
-
-This file contains the CSS used to style the website and make it responsive.
-
-### `stories/static/stories/script.js`
-
-This file contains the JavaScript used in the project.
-
----
+-   **`stories/static/stories/style.css`** contains the website's
+    styling for navigation, page layouts, story cards, forms, chapter
+    content, and buttons. It also includes responsive media queries for
+    smaller screens.
+-   **`stories/static/stories/script.js`** contains the JavaScript
+    confirmation shown when the author submits the form to end a story.
+    If the user cancels, the form submission is prevented.
 
 ## How to Run the Project
 
-First, create and activate a virtual environment.
+These instructions are for macOS or Linux.
 
-On macOS or Linux:
+1.  Open a terminal and move into the project directory.
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+2.  Create and activate a virtual environment:
 
-Install all the required packages:
+    ``` bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
-```bash
-pip install -r requirements.txt
-```
+3.  Install the required packages:
 
-Apply the database migrations:
+    ``` bash
+    pip install -r requirements.txt
+    ```
 
-```bash
-python3 manage.py migrate
-```
+4.  Apply the database migrations:
 
-Run the development server:
+    ``` bash
+    python3 manage.py migrate
+    ```
 
-```bash
-python3 manage.py runserver
-```
+5.  Start the development server:
 
-Then open the URL shown in the terminal in a web browser.
+    ``` bash
+    python3 manage.py runserver
+    ```
 
-For example:
-
-```text
-http://127.0.0.1:8000/
-```
-
----
+6.  Open `http://127.0.0.1:8000/` in a browser.
 
 ## Testing
 
-To run the automated tests:
+Run the automated tests with:
 
-```bash
+``` bash
 python3 manage.py test
 ```
 
-To check the project for common Django errors:
+Run Django's project checks with:
 
-```bash
+``` bash
 python3 manage.py check
 ```
 
----
+The tests exercise key page and feature behavior, including story
+browsing, chapter display, authentication, saved stories, continuations,
+comments, title search, and genre filtering.
 
-## Responsive Design
+## Additional Information
 
-The website is designed to work on both desktop and smaller screens. The CSS includes responsive rules for the navigation bar, story cards, forms, and other parts of the website.
+StoryWeave is intended to run locally using Django's development server.
+It uses Django's built-in authentication, SQLite for the local database,
+Django templates for the pages, CSS for styling, and JavaScript for the
+story-ending confirmation. The documentation describes the current
+implementation; features not listed here should not be assumed to be
+part of the application.
